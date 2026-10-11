@@ -1,0 +1,17 @@
+#!/bin/bash
+# omdrop-plasmoid shim
+# Stand-in for Omarchy's omarchy-launch-browser on a desktop other than Omarchy:
+# open a URL in the default browser. --private is Omarchy's flag and has no
+# portable equivalent through xdg-open, so it is dropped.
+#
+# The browser gets a unit of its own because omdrop calls this from transient
+# units whose cgroup is killed when they exit.
+args=()
+for a in "$@"; do [[ $a == --private ]] || args+=("$a"); done
+
+if (( ${#args[@]} == 0 )); then
+  browser=$(xdg-settings get default-web-browser 2>/dev/null)
+  [[ -n $browser ]] || { echo "omarchy-launch-browser: no default browser is set" >&2; exit 1; }
+  exec systemd-run --user --quiet --collect -- gtk-launch "${browser%.desktop}"
+fi
+exec systemd-run --user --quiet --collect -- xdg-open "${args[@]}"

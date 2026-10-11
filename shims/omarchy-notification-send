@@ -1,0 +1,74 @@
+#!/bin/bash
+# omdrop-plasmoid shim
+# Stand-in for Omarchy's omarchy-notification-send on a desktop other than
+# Omarchy, so omdrop's notifications work. Same arguments as the original:
+#
+#   omarchy-notification-send [--app-name N] [-g GLYPH] [-u low|normal|critical]
+#       [-i ICON] [-t MS] [-r ID] [-p] [--image PATH] HEADLINE [DESCRIPTION]
+#       [--exec PROGRAM [ARGS...]]
+#
+# It goes through notify-send, so any freedesktop notification server works.
+# --exec runs when the notification is clicked: Plasma fires the "default"
+# action for a click on the body. -g, -r and -p have no equivalent and are
+# accepted and ignored.
+#
+# Omarchy's default urgency is low. Plasma keeps low-urgency notifications out
+# of its history, so the default here is normal; an explicit -u is honoured.
+set -uo pipefail
+
+SELF=$(readlink -f "$0")
+app="Omdrop" urgency=normal icon= image= timeout=-1
+pos=() exec_args=() waiting=0 literal=0
+
+if [[ ${1:-} == --shim-wait ]]; then waiting=1; shift; fi
+
+while (( $# )); do
+  # After `--` only --exec is still an option: a headline may start with a dash.
+  if (( literal )) && [[ $1 != --exec ]]; then pos+=("$1"); shift; continue; fi
+  case $1 in
+    --exec) shift; exec_args=("$@"); break ;;
+    --app-name=*|--urgency=*|--icon=*|--image=*|--expire-time=*|--glyph=*|--replace-id=*)
+      set -- "${1%%=*}" "${1#*=}" "${@:2}"; continue ;;
+    --app-name)          app=${2-}; shift 2 ;;
+    -u|--urgency)        urgency=${2-}; shift 2 ;;
+    -i|--icon)           icon=${2-}; shift 2 ;;
+    --image)             image=${2-}; shift 2 ;;
+    -t|--expire-time)    timeout=${2-}; shift 2 ;;
+    -g|--glyph|-r|--replace-id) shift 2 ;;
+    -p|--print-id)       shift ;;
+    --)                  literal=1; shift ;;
+    *)                   pos+=("$1"); shift ;;
+  esac
+done
+
+(( ${#pos[@]} )) || { echo "Usage: omarchy-notification-send [options] <headline> [description] [--exec <program> [args...]]" >&2; exit 1; }
+
+cmd=(notify-send -a "$app" -u "$urgency")
+[[ $timeout =~ ^[0-9]+$ ]] && cmd+=(-t "$timeout")
+if [[ -n $image ]]; then
+  image=${image#file://}
+  cmd+=(-i "$image" -h "string:image-path:$image")
+elif [[ -n $icon ]]; then
+  cmd+=(-i "$icon")
+fi
+
+if (( ${#exec_args[@]} == 0 )); then
+  exec "${cmd[@]}" -- "${pos[@]}"
+fi
+
+# With --exec the click has to be waited for, and the caller must not block on
+# it: omdrop's watcher is a transient unit whose cgroup dies with it, so the
+# wait gets a unit of its own.
+if (( ! waiting )); then
+  args=()
+  [[ $timeout =~ ^[0-9]+$ ]] && args+=(-t "$timeout")
+  [[ -n $image ]] && args+=(--image "$image")
+  [[ -n $icon ]] && args+=(-i "$icon")
+  exec systemd-run --user --quiet --collect -- "$SELF" --shim-wait \
+    --app-name "$app" -u "$urgency" "${args[@]}" -- "${pos[@]}" --exec "${exec_args[@]}"
+fi
+
+# A notification that is never closed would keep this unit forever.
+action=$(timeout 900 "${cmd[@]}" -A "default=Open" -- "${pos[@]}") || true
+[[ $action == default ]] && exec "${exec_args[@]}"
+exit 0

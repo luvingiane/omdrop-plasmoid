@@ -1,0 +1,16 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Category": "Utilities",
+        "Description": "AirDrop with nearby Apple devices, through omdrop",
+        "Description[it]": "AirDrop con i dispositivi Apple vicini, tramite omdrop",
+        "Icon": "document-share",
+        "Id": "local.omdrop",
+        "License": "MIT",
+        "Name": "Omdrop (AirDrop)",
+        "Version": "0.1.0"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-NotificationArea": "true",
+    "X-Plasma-NotificationAreaCategory": "ApplicationStatus"
+}

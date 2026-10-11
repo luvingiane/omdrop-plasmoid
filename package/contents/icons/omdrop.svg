@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">
+  <!-- A triangle dropping into a tray. Drawn as a mask: the applet colours it. -->
+  <path d="M6.5 3.5h9L11 11z" fill="#000"/>
+  <path d="M3 12h2v5h12v-5h2v7H3z" fill="#000"/>
+</svg>

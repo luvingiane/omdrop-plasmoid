@@ -1,0 +1,18 @@
+#!/bin/bash
+# omdrop-plasmoid shim
+# Stand-in for Omarchy's omarchy-default-terminal on a desktop other than
+# Omarchy: print the terminal emulator's command.
+#
+# Plasma's own choice first (System Settings > Default Applications), then
+# $TERMINAL, then whichever common terminal is installed.
+candidates=()
+if command -v kreadconfig6 >/dev/null 2>&1; then
+  candidates+=("$(kreadconfig6 --file kdeglobals --group General --key TerminalApplication 2>/dev/null)")
+fi
+candidates+=("${TERMINAL:-}" konsole kitty alacritty foot gnome-terminal xterm)
+
+for t in "${candidates[@]}"; do
+  [[ -n $t ]] && command -v "$t" >/dev/null 2>&1 && { echo "$t"; exit 0; }
+done
+echo "omarchy-default-terminal: no terminal emulator found" >&2
+exit 1
