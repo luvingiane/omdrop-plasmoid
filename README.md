@@ -16,9 +16,9 @@ command, so if `omdrop` works in a terminal, it works here.
 - **Panel icon**, struck through while AirDrop is off and coloured while this
   computer is visible. Click opens the popup; middle-click turns AirDrop on or
   off.
-- **Switch** for visibility and a **duration** for the window: 10 minutes,
-  30 minutes, 1 hour, one file only, or until you turn it off. Changing the
-  duration while a window is open reschedules it.
+- **Switch** for visibility. How long the window lasts is in the settings:
+  10 minutes, 30 minutes, 1 hour, one file only, or until you turn it off.
+  Changing it while a window is open reschedules it.
 - **Status** with a countdown. An error from omdrop appears as a banner under
   the heading.
 - **Nearby devices**, by name. **Send…** opens a file chooser for that device.
@@ -31,7 +31,7 @@ command, so if `omdrop` works in a terminal, it works here.
   menu.
 - **Pin**, at the top right, to keep the popup open while you work in another
   window. In the system tray the tray's own pin does this.
-- **Settings**, from the context menu: the default duration, how long a send
+- **Settings**, from the context menu: the window's duration, how long a send
   waits for the recipient, and the pin.
 
 Names are looked up automatically while the popup is open and a device has no
@@ -135,7 +135,6 @@ po/build.sh
 | `package/contents/ui/main.qml` | state, the calls to `omdrop`, the panel icon |
 | `package/contents/ui/FullRepresentation.qml` | the popup |
 | `package/contents/ui/configGeneral.qml` | the settings page |
-| `package/contents/ui/Durations.qml` | the durations the popup and the settings page offer |
 | `package/contents/config/main.xml` | the saved settings: duration, send wait and the pin |
 | `package/contents/config/config.qml` | the list of settings pages |
 | `package/contents/icons/omdrop.svg` | the icon |

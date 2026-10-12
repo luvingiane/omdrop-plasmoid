@@ -1,6 +1,6 @@
-// The popup, laid out as Plasma's own applets are: the switch and the window's
-// length in the heading, an error under it, then what omdrop is doing and the
-// Apple devices nearby, each with a way to send to it.
+// The popup, laid out as Plasma's own applets are: the switch in the heading,
+// an error under it, then what omdrop is doing and the Apple devices nearby,
+// each with a way to send to it.
 import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
@@ -22,10 +22,6 @@ PlasmaExtras.Representation {
     // starts inside it: text outside the list lines up with the rows.
     readonly property real listMargin: Kirigami.Units.smallSpacing * 2
     readonly property real rowInset: Kirigami.Units.smallSpacing
-
-    Durations {
-        id: durations
-    }
 
     // Files dragged from a file manager. One area over the whole popup, the
     // heading included, tells main.qml that they are still here; dropped on a
@@ -82,33 +78,6 @@ PlasmaExtras.Representation {
 
             Item {
                 Layout.fillWidth: true
-            }
-
-            PlasmaComponents.ComboBox {
-                id: durationBox
-
-                function sync() {
-                    currentIndex = Math.max(0, indexOfValue(root.duration));
-                }
-
-                model: durations.list
-                textRole: "label"
-                valueRole: "value"
-                enabled: root.installed && root.pending === ""
-                Component.onCompleted: sync()
-                onActivated: root.setDuration(currentValue)
-
-                // The settings page changes it too.
-                Connections {
-                    target: root
-                    function onDurationChanged() {
-                        durationBox.sync();
-                    }
-                }
-
-                PlasmaComponents.ToolTip {
-                    text: i18n("How long to stay visible")
-                }
             }
 
             PlasmaComponents.ToolButton {

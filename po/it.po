@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: omdrop-plasmoid 1.1.0\n"
+"Project-Id-Version: omdrop-plasmoid 1.1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 00:04+0200\n"
+"POT-Creation-Date: 2026-10-13 00:11+0200\n"
 "PO-Revision-Date: 2026-10-11 12:05+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,106 +17,102 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: package/contents/ui/configGeneral.qml:32
+#: package/contents/ui/configGeneral.qml:22
+msgid "10 minutes"
+msgstr "10 minuti"
+
+#: package/contents/ui/configGeneral.qml:23
+msgid "30 minutes"
+msgstr "30 minuti"
+
+#: package/contents/ui/configGeneral.qml:24
+msgid "1 hour"
+msgstr "1 ora"
+
+#: package/contents/ui/configGeneral.qml:25
+msgid "One file only"
+msgstr "Un solo file"
+
+#: package/contents/ui/configGeneral.qml:26
+msgid "Until I turn it off"
+msgstr "Finché non spengo"
+
+#: package/contents/ui/configGeneral.qml:37
 msgid "Stay visible for:"
 msgstr "Resta visibile per:"
 
-#: package/contents/ui/configGeneral.qml:51
+#: package/contents/ui/configGeneral.qml:56
 msgid "Wait for the recipient for:"
 msgstr "Attendi il destinatario per:"
 
-#: package/contents/ui/configGeneral.qml:55
+#: package/contents/ui/configGeneral.qml:60
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] "%1 secondo"
 msgstr[1] "%1 secondi"
 
-#: package/contents/ui/configGeneral.qml:62
+#: package/contents/ui/configGeneral.qml:67
 msgid "Popup:"
 msgstr "Popup:"
 
-#: package/contents/ui/configGeneral.qml:63
+#: package/contents/ui/configGeneral.qml:68
 msgid "Keep open when another window takes the focus"
 msgstr "Tieni aperto quando passi a un'altra finestra"
 
-#: package/contents/ui/Durations.qml:7
-msgid "10 minutes"
-msgstr "10 minuti"
-
-#: package/contents/ui/Durations.qml:8
-msgid "30 minutes"
-msgstr "30 minuti"
-
-#: package/contents/ui/Durations.qml:9
-msgid "1 hour"
-msgstr "1 ora"
-
-#: package/contents/ui/Durations.qml:10
-msgid "One file only"
-msgstr "Un solo file"
-
-#: package/contents/ui/Durations.qml:11
-msgid "Until I turn it off"
-msgstr "Finché non spengo"
-
-#: package/contents/ui/FullRepresentation.qml:110
-msgid "How long to stay visible"
-msgstr "Per quanto tempo restare visibile"
-
-#: package/contents/ui/FullRepresentation.qml:117
-#: package/contents/ui/main.qml:302
+#: package/contents/ui/FullRepresentation.qml:86
+#: package/contents/ui/main.qml:299
 msgid "Open the received files folder"
 msgstr "Apri la cartella dei file ricevuti"
 
-#: package/contents/ui/FullRepresentation.qml:131
+#: package/contents/ui/FullRepresentation.qml:100
 msgid "Keep Open"
 msgstr "Mantieni aperto"
 
-#: package/contents/ui/FullRepresentation.qml:228
+#: package/contents/ui/FullRepresentation.qml:197
 msgid "Nearby devices"
 msgstr "Dispositivi vicini"
 
-#: package/contents/ui/FullRepresentation.qml:250
+#: package/contents/ui/FullRepresentation.qml:219
 msgid "Refresh names"
 msgstr "Aggiorna i nomi"
 
-#: package/contents/ui/FullRepresentation.qml:258
+#: package/contents/ui/FullRepresentation.qml:227
 msgid "Connects to each device and announces this computer over Bluetooth"
 msgstr "Si collega a ogni dispositivo e annuncia questo computer via Bluetooth"
 
-#: package/contents/ui/FullRepresentation.qml:278
+#: package/contents/ui/FullRepresentation.qml:247
 msgid "Apple device"
 msgstr "Dispositivo Apple"
 
-#: package/contents/ui/FullRepresentation.qml:279
+#: package/contents/ui/FullRepresentation.qml:248
 msgid "Sending: accept it on the device"
 msgstr "Invio in corso: accetta sul dispositivo"
 
-#: package/contents/ui/FullRepresentation.qml:282
+#: package/contents/ui/FullRepresentation.qml:251
 msgid "Send…"
 msgstr "Invia…"
 
-#: package/contents/ui/FullRepresentation.qml:310
+#: package/contents/ui/FullRepresentation.qml:279
 msgid "omdrop is not installed"
 msgstr "omdrop non è installato"
 
-#: package/contents/ui/FullRepresentation.qml:311
+#: package/contents/ui/FullRepresentation.qml:280
 msgid "No Apple devices in sight"
 msgstr "Nessun dispositivo Apple in vista"
 
-#: package/contents/ui/FullRepresentation.qml:311
+#: package/contents/ui/FullRepresentation.qml:280
 msgid "AirDrop is off"
 msgstr "AirDrop è spento"
 
-#: package/contents/ui/FullRepresentation.qml:315
+#: package/contents/ui/FullRepresentation.qml:284
 msgid "The omdrop command is needed in ~/.local/bin or on the PATH."
 msgstr "Serve il comando omdrop in ~/.local/bin o nel PATH."
 
-#: package/contents/ui/FullRepresentation.qml:317
+#: package/contents/ui/FullRepresentation.qml:286
 msgid "On the iPhone, set AirDrop to “Everyone for 10 Minutes” and open the share sheet."
 msgstr "Sull'iPhone imposta AirDrop su “Tutti per 10 minuti” e apri il foglio di condivisione."
 
-#: package/contents/ui/FullRepresentation.qml:318
+#: package/contents/ui/FullRepresentation.qml:287
 msgid "Turn it on to receive files and see nearby devices."
 msgstr "Accendilo per ricevere file e vedere i dispositivi vicini."
 
@@ -160,33 +156,33 @@ msgstr "omdrop on è uscito con codice %1"
 msgid "omdrop off exited with code %1"
 msgstr "omdrop off è uscito con codice %1"
 
-#: package/contents/ui/main.qml:262
+#: package/contents/ui/main.qml:253
 msgid "Sent to %1"
 msgstr "Inviato a %1"
 
-#: package/contents/ui/main.qml:264
+#: package/contents/ui/main.qml:255
 msgid "%1 file"
 msgid_plural "%1 files"
 msgstr[0] "%1 file"
 msgstr[1] "%1 file"
 
-#: package/contents/ui/main.qml:266
+#: package/contents/ui/main.qml:257
 msgid "omdrop send exited with code %1"
 msgstr "omdrop send è uscito con codice %1"
 
-#: package/contents/ui/main.qml:267
+#: package/contents/ui/main.qml:258
 msgid "Could not send to %1"
 msgstr "Invio a %1 non riuscito"
 
-#: package/contents/ui/main.qml:296
+#: package/contents/ui/main.qml:293
 msgid "Turn AirDrop Off"
 msgstr "Spegni AirDrop"
 
-#: package/contents/ui/main.qml:296
+#: package/contents/ui/main.qml:293
 msgid "Turn AirDrop On"
 msgstr "Accendi AirDrop"
 
-#: package/contents/ui/main.qml:370
+#: package/contents/ui/main.qml:367
 msgid "Choose the files to send"
 msgstr "Scegli i file da inviare"
 

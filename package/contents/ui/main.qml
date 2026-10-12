@@ -1,8 +1,8 @@
 // Omdrop for Plasma: a panel front end to the `omdrop` command.
 //
 // Everything goes through the CLI: `status --json` and `peers --json` are
-// polled, and the switch, the duration and the send buttons run `on`, `off`
-// and `send`. The applet keeps no state of its own beyond the chosen duration.
+// polled, and the switch and the send buttons run `on`, `off` and `send`. The
+// applet keeps no state of its own beyond its settings.
 import QtQuick
 import QtQuick.Dialogs
 import org.kde.plasma.plasmoid
@@ -156,15 +156,6 @@ PlasmoidItem {
             turnOn();
     }
 
-    function setDuration(value) {
-        if (value === duration)
-            return;
-        Plasmoid.configuration.duration = value;
-        // A window that is already open takes the new length.
-        if (receiving)
-            turnOn();
-    }
-
     function setPinned(on) {
         Plasmoid.configuration.pin = on;
     }
@@ -289,6 +280,12 @@ PlasmoidItem {
     onExpandedChanged: {
         if (!root.expanded)
             dragOpened = false;
+    }
+
+    // A window that is already open takes the new length from the settings.
+    onDurationChanged: {
+        if (receiving)
+            turnOn();
     }
 
     Plasmoid.contextualActions: [

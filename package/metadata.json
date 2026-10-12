@@ -8,7 +8,7 @@
         "Id": "io.github.luvingiane.omdrop",
         "License": "MIT",
         "Name": "Omdrop (AirDrop)",
-        "Version": "1.1.0"
+        "Version": "1.1.1"
     },
     "X-Plasma-API-Minimum-Version": "6.0",
     "X-Plasma-NotificationArea": "true",

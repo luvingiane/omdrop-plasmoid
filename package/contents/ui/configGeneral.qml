@@ -1,5 +1,5 @@
-// The settings page: what the popup also offers, and the wait for a send,
-// which it does not.
+// The settings page: how long a window lasts, how long a send waits, and the
+// popup's pin.
 import QtQuick
 import QtQuick.Controls as QQC2
 import org.kde.kirigami as Kirigami
@@ -17,9 +17,14 @@ KCM.SimpleKCM {
     property int cfg_sendWaitDefault
     property bool cfg_pinDefault
 
-    Durations {
-        id: durations
-    }
+    // What the user reads, and what `omdrop on` is given.
+    readonly property var durations: [
+        { label: i18n("10 minutes"), value: "10m" },
+        { label: i18n("30 minutes"), value: "30m" },
+        { label: i18n("1 hour"), value: "1h" },
+        { label: i18n("One file only"), value: "once" },
+        { label: i18n("Until I turn it off"), value: "forever" }
+    ]
 
     Kirigami.FormLayout {
         QQC2.ComboBox {
@@ -30,7 +35,7 @@ KCM.SimpleKCM {
             }
 
             Kirigami.FormData.label: i18n("Stay visible for:")
-            model: durations.list
+            model: page.durations
             textRole: "label"
             valueRole: "value"
             Component.onCompleted: sync()
