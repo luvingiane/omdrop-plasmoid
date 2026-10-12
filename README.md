@@ -13,18 +13,26 @@ command, so if `omdrop` works in a terminal, it works here.
 
 ## What it does
 
-- **Panel icon**, coloured while this computer is visible. Click opens the
-  popup; middle-click turns AirDrop on or off.
+- **Panel icon**, struck through while AirDrop is off and coloured while this
+  computer is visible. Click opens the popup; middle-click turns AirDrop on or
+  off.
 - **Switch** for visibility and a **duration** for the window: 10 minutes,
   30 minutes, 1 hour, one file only, or until you turn it off. Changing the
   duration while a window is open reschedules it.
 - **Status** with a countdown. An error from omdrop appears as a banner under
   the heading.
-- **Nearby devices**, by name. **Send…** opens a file chooser for that device,
-  or drag files from Dolphin onto its row. The result of a send arrives as a
-  notification.
+- **Nearby devices**, by name. **Send…** opens a file chooser for that device.
+  Or drag files from Dolphin: hold them over the panel icon until the popup
+  opens, then drop them on the device's row. A popup opened this way closes
+  again once the files are dropped or taken away. With a single device in
+  sight, dropping them on the icon itself sends them to it. The result of a
+  send arrives as a notification.
 - **Received files folder**, from the button at the top right or the context
   menu.
+- **Pin**, at the top right, to keep the popup open while you work in another
+  window. In the system tray the tray's own pin does this.
+- **Settings**, from the context menu: the default duration, how long a send
+  waits for the recipient, and the pin.
 
 Names are looked up automatically while the popup is open and a device has no
 name yet, at most every 15 seconds. Asking for a name connects to each device
@@ -59,6 +67,17 @@ also copies the icon to `~/.local/share/icons/hicolor/scalable/apps/` as
 it. Then right-click the panel, choose **Add or Manage Widgets…** and search for
 **Omdrop**. It also lives in the system tray, where it sits among the hidden
 icons while AirDrop is off unless you set it to "Always shown".
+
+Up to 1.0.0 the widget's id was `local.omdrop`; it is now
+`io.github.luvingiane.omdrop`. The script removes the old package, but a widget
+already on a panel is still the old one: remove it and add Omdrop again. Its
+settings start from the defaults.
+
+To remove everything the script installed:
+
+```bash
+./install.sh --uninstall
+```
 
 After an update Plasma keeps the old version in memory:
 
@@ -115,7 +134,10 @@ po/build.sh
 |---|---|
 | `package/contents/ui/main.qml` | state, the calls to `omdrop`, the panel icon |
 | `package/contents/ui/FullRepresentation.qml` | the popup |
-| `package/contents/config/main.xml` | the two saved settings: duration and send wait |
+| `package/contents/ui/configGeneral.qml` | the settings page |
+| `package/contents/ui/Durations.qml` | the durations the popup and the settings page offer |
+| `package/contents/config/main.xml` | the saved settings: duration, send wait and the pin |
+| `package/contents/config/config.qml` | the list of settings pages |
 | `package/contents/icons/omdrop.svg` | the icon |
 | `package/contents/icons/omdrop-off.svg` | the icon struck through, for the popup while AirDrop is off |
 | `po/` | translation template, catalogues and their build script |
@@ -123,12 +145,11 @@ po/build.sh
 Status comes from `omdrop status --json`, every 2 seconds with the popup open
 and every 10 with it closed. Devices come from `omdrop peers --json`, every
 4 seconds and only with the popup open. Sending runs
-`omdrop send --to <address> --wait 60`.
+`omdrop send --to <address> --wait <seconds>`, 60 unless changed in the
+settings.
 
 ## Limits
 
-- No settings page. The duration is chosen in the popup; the send wait
-  (60 seconds) can only be changed by hand in Plasma's configuration file.
 - No "Contacts Only" mode and no known-senders list: use the `omdrop` command
   for those.
 - No progress for a send, only "sending" and then the result.

@@ -10,11 +10,11 @@ set -euo pipefail
 
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$root"
-domain=plasma_applet_local.omdrop
+domain=plasma_applet_io.github.luvingiane.omdrop
 
 xgettext --from-code=UTF-8 --language=JavaScript -ki18n:1 -ki18np:1,2 \
   --package-name=omdrop-plasmoid --no-wrap -o po/template.pot \
-  package/contents/ui/*.qml
+  package/contents/ui/*.qml package/contents/config/*.qml
 
 for po in po/*.po; do
   lang=$(basename "$po" .po)

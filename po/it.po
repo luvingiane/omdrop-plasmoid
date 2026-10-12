@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: omdrop-plasmoid 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-12 23:32+0200\n"
+"POT-Creation-Date: 2026-10-13 00:04+0200\n"
 "PO-Revision-Date: 2026-10-11 12:05+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,149 +17,179 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: package/contents/ui/FullRepresentation.qml:27
+#: package/contents/ui/configGeneral.qml:32
+msgid "Stay visible for:"
+msgstr "Resta visibile per:"
+
+#: package/contents/ui/configGeneral.qml:51
+msgid "Wait for the recipient for:"
+msgstr "Attendi il destinatario per:"
+
+#: package/contents/ui/configGeneral.qml:55
+msgid "%1 second"
+msgid_plural "%1 seconds"
+msgstr[0] "%1 secondo"
+msgstr[1] "%1 secondi"
+
+#: package/contents/ui/configGeneral.qml:62
+msgid "Popup:"
+msgstr "Popup:"
+
+#: package/contents/ui/configGeneral.qml:63
+msgid "Keep open when another window takes the focus"
+msgstr "Tieni aperto quando passi a un'altra finestra"
+
+#: package/contents/ui/Durations.qml:7
 msgid "10 minutes"
 msgstr "10 minuti"
 
-#: package/contents/ui/FullRepresentation.qml:28
+#: package/contents/ui/Durations.qml:8
 msgid "30 minutes"
 msgstr "30 minuti"
 
-#: package/contents/ui/FullRepresentation.qml:29
+#: package/contents/ui/Durations.qml:9
 msgid "1 hour"
 msgstr "1 ora"
 
-#: package/contents/ui/FullRepresentation.qml:30
+#: package/contents/ui/Durations.qml:10
 msgid "One file only"
 msgstr "Un solo file"
 
-#: package/contents/ui/FullRepresentation.qml:31
+#: package/contents/ui/Durations.qml:11
 msgid "Until I turn it off"
 msgstr "Finché non spengo"
 
-#: package/contents/ui/FullRepresentation.qml:71
+#: package/contents/ui/FullRepresentation.qml:110
 msgid "How long to stay visible"
 msgstr "Per quanto tempo restare visibile"
 
-#: package/contents/ui/FullRepresentation.qml:78
-#: package/contents/ui/main.qml:279
+#: package/contents/ui/FullRepresentation.qml:117
+#: package/contents/ui/main.qml:302
 msgid "Open the received files folder"
 msgstr "Apri la cartella dei file ricevuti"
 
-#: package/contents/ui/FullRepresentation.qml:173
+#: package/contents/ui/FullRepresentation.qml:131
+msgid "Keep Open"
+msgstr "Mantieni aperto"
+
+#: package/contents/ui/FullRepresentation.qml:228
 msgid "Nearby devices"
 msgstr "Dispositivi vicini"
 
-#: package/contents/ui/FullRepresentation.qml:195
+#: package/contents/ui/FullRepresentation.qml:250
 msgid "Refresh names"
 msgstr "Aggiorna i nomi"
 
-#: package/contents/ui/FullRepresentation.qml:203
+#: package/contents/ui/FullRepresentation.qml:258
 msgid "Connects to each device and announces this computer over Bluetooth"
 msgstr "Si collega a ogni dispositivo e annuncia questo computer via Bluetooth"
 
-#: package/contents/ui/FullRepresentation.qml:223
+#: package/contents/ui/FullRepresentation.qml:278
 msgid "Apple device"
 msgstr "Dispositivo Apple"
 
-#: package/contents/ui/FullRepresentation.qml:224
+#: package/contents/ui/FullRepresentation.qml:279
 msgid "Sending: accept it on the device"
 msgstr "Invio in corso: accetta sul dispositivo"
 
-#: package/contents/ui/FullRepresentation.qml:227
+#: package/contents/ui/FullRepresentation.qml:282
 msgid "Send…"
 msgstr "Invia…"
 
-#: package/contents/ui/FullRepresentation.qml:270
+#: package/contents/ui/FullRepresentation.qml:310
 msgid "omdrop is not installed"
 msgstr "omdrop non è installato"
 
-#: package/contents/ui/FullRepresentation.qml:271
+#: package/contents/ui/FullRepresentation.qml:311
 msgid "No Apple devices in sight"
 msgstr "Nessun dispositivo Apple in vista"
 
-#: package/contents/ui/FullRepresentation.qml:271
+#: package/contents/ui/FullRepresentation.qml:311
 msgid "AirDrop is off"
 msgstr "AirDrop è spento"
 
-#: package/contents/ui/FullRepresentation.qml:275
+#: package/contents/ui/FullRepresentation.qml:315
 msgid "The omdrop command is needed in ~/.local/bin or on the PATH."
 msgstr "Serve il comando omdrop in ~/.local/bin o nel PATH."
 
-#: package/contents/ui/FullRepresentation.qml:277
+#: package/contents/ui/FullRepresentation.qml:317
 msgid "On the iPhone, set AirDrop to “Everyone for 10 Minutes” and open the share sheet."
 msgstr "Sull'iPhone imposta AirDrop su “Tutti per 10 minuti” e apri il foglio di condivisione."
 
-#: package/contents/ui/FullRepresentation.qml:278
+#: package/contents/ui/FullRepresentation.qml:318
 msgid "Turn it on to receive files and see nearby devices."
 msgstr "Accendilo per ricevere file e vedere i dispositivi vicini."
 
-#: package/contents/ui/main.qml:50
+#: package/contents/ui/main.qml:61
 msgid "The omdrop command is not installed"
 msgstr "Il comando omdrop non è installato"
 
-#: package/contents/ui/main.qml:52
+#: package/contents/ui/main.qml:63
 msgid "Waking the radio…"
 msgstr "Accensione della radio…"
 
-#: package/contents/ui/main.qml:54
+#: package/contents/ui/main.qml:65
 msgid "Turning off…"
 msgstr "Spegnimento…"
 
-#: package/contents/ui/main.qml:56
+#: package/contents/ui/main.qml:67
 msgid "Off"
 msgstr "Spento"
 
-#: package/contents/ui/main.qml:58
+#: package/contents/ui/main.qml:69
 msgid "Visible to contacts as “%1”"
 msgstr "Visibile ai contatti come “%1”"
 
-#: package/contents/ui/main.qml:59
+#: package/contents/ui/main.qml:70
 msgid "Visible to everyone as “%1”"
 msgstr "Visibile a tutti come “%1”"
 
-#: package/contents/ui/main.qml:67
+#: package/contents/ui/main.qml:78
 msgid "until the first file"
 msgstr "fino al primo file"
 
-#: package/contents/ui/main.qml:69
+#: package/contents/ui/main.qml:80
 msgid "until you turn it off"
 msgstr "finché non lo spegni"
 
-#: package/contents/ui/main.qml:123
+#: package/contents/ui/main.qml:134
 msgid "omdrop on exited with code %1"
 msgstr "omdrop on è uscito con codice %1"
 
-#: package/contents/ui/main.qml:136
+#: package/contents/ui/main.qml:147
 msgid "omdrop off exited with code %1"
 msgstr "omdrop off è uscito con codice %1"
 
-#: package/contents/ui/main.qml:247
+#: package/contents/ui/main.qml:262
 msgid "Sent to %1"
 msgstr "Inviato a %1"
 
-#: package/contents/ui/main.qml:249
+#: package/contents/ui/main.qml:264
 msgid "%1 file"
 msgid_plural "%1 files"
 msgstr[0] "%1 file"
 msgstr[1] "%1 file"
 
-#: package/contents/ui/main.qml:251
+#: package/contents/ui/main.qml:266
 msgid "omdrop send exited with code %1"
 msgstr "omdrop send è uscito con codice %1"
 
-#: package/contents/ui/main.qml:252
+#: package/contents/ui/main.qml:267
 msgid "Could not send to %1"
 msgstr "Invio a %1 non riuscito"
 
-#: package/contents/ui/main.qml:273
+#: package/contents/ui/main.qml:296
 msgid "Turn AirDrop Off"
 msgstr "Spegni AirDrop"
 
-#: package/contents/ui/main.qml:273
+#: package/contents/ui/main.qml:296
 msgid "Turn AirDrop On"
 msgstr "Accendi AirDrop"
 
-#: package/contents/ui/main.qml:338
+#: package/contents/ui/main.qml:370
 msgid "Choose the files to send"
 msgstr "Scegli i file da inviare"
+
+#: package/contents/config/config.qml:7
+msgid "General"
+msgstr "Generale"

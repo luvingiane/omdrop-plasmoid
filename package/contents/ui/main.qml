@@ -38,6 +38,17 @@ PlasmoidItem {
 
     readonly property string duration: Plasmoid.configuration.duration
     readonly property int sendWait: Plasmoid.configuration.sendWait
+    readonly property bool pinned: Plasmoid.configuration.pin
+
+    // The system tray draws the heading of the popup, with a pin of its own.
+    readonly property bool inTray: Plasmoid.containmentDisplayHints & PlasmaCore.Types.ContainmentDrawsPlasmoidHeading
+
+    // Files dragged from another window: over the panel icon, and over the
+    // popup that opens under them. `dragOpened` holds for as long as that
+    // popup is open.
+    property bool dragOverIcon: false
+    property bool dragOverPopup: false
+    property bool dragOpened: false
 
     // plasmashell is a systemd user unit, and its PATH need not hold
     // ~/.local/bin, which is where `omdrop setup` puts the command.
@@ -154,6 +165,10 @@ PlasmoidItem {
             turnOn();
     }
 
+    function setPinned(on) {
+        Plasmoid.configuration.pin = on;
+    }
+
     function withNames(list) {
         return list.map(p => ({
             mac: p.mac,
@@ -268,6 +283,14 @@ PlasmoidItem {
     toolTipMainText: "AirDrop"
     toolTipSubText: statusText
 
+    // Plasma closes the popup whenever the focus moves to another window, and
+    // it moves as dragged files cross from the panel to the popup.
+    hideOnWindowDeactivate: !pinned && !dragOpened
+    onExpandedChanged: {
+        if (!root.expanded)
+            dragOpened = false;
+    }
+
     Plasmoid.contextualActions: [
         PlasmaCore.Action {
             text: root.receiving ? i18n("Turn AirDrop Off") : i18n("Turn AirDrop On")
@@ -333,6 +356,15 @@ PlasmoidItem {
         onTriggered: root.refreshPeers()
     }
 
+    // The drag that opened the popup is over neither the icon nor the popup:
+    // given the time to cross from one to the other, the files were dropped or
+    // taken elsewhere, and the popup closes as it opened.
+    Timer {
+        interval: 1000
+        running: root.dragOpened && !root.dragOverIcon && !root.dragOverPopup
+        onTriggered: root.expanded = false
+    }
+
     FileDialog {
         id: fileDialog
         title: i18n("Choose the files to send")
@@ -352,11 +384,46 @@ PlasmoidItem {
 
         Kirigami.Icon {
             anchors.fill: parent
-            source: Qt.resolvedUrl("../icons/omdrop.svg")
+            // Struck through while off: the colour alone does not show on
+            // every theme.
+            source: Qt.resolvedUrl(root.receiving ? "../icons/omdrop.svg" : "../icons/omdrop-off.svg")
             isMask: true
             color: root.receiving ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor
             opacity: root.pending !== "" ? 0.5 : (root.receiving ? 1 : 0.8)
             active: parent.containsMouse
+        }
+
+        // Files held over the icon open the popup, to be dropped on a device:
+        // as Plasma's default icon does for the applets that ask for it, and
+        // with the same delay. Dropped on the icon itself, they go to the one
+        // device in sight, when there is just one.
+        DropArea {
+            anchors.fill: parent
+            onContainsDragChanged: {
+                root.dragOverIcon = containsDrag;
+                if (containsDrag) {
+                    dropTimer.restart();
+                    // The devices are only looked for while the popup is open.
+                    root.refreshPeers();
+                } else {
+                    dropTimer.stop();
+                }
+            }
+            onDropped: drop => {
+                if (drop.hasUrls && root.receiving && root.peers.length === 1)
+                    root.sendFiles(root.peers[0].mac, drop.urls);
+            }
+
+            Timer {
+                id: dropTimer
+                interval: 250
+                onTriggered: {
+                    if (!root.expanded) {
+                        root.dragOpened = true;
+                        root.expanded = true;
+                    }
+                }
+            }
         }
     }
 

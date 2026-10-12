@@ -23,13 +23,38 @@ PlasmaExtras.Representation {
     readonly property real listMargin: Kirigami.Units.smallSpacing * 2
     readonly property real rowInset: Kirigami.Units.smallSpacing
 
-    readonly property var durations: [
-        { label: i18n("10 minutes"), value: "10m" },
-        { label: i18n("30 minutes"), value: "30m" },
-        { label: i18n("1 hour"), value: "1h" },
-        { label: i18n("One file only"), value: "once" },
-        { label: i18n("Until I turn it off"), value: "forever" }
-    ]
+    Durations {
+        id: durations
+    }
+
+    // Files dragged from a file manager. One area over the whole popup, the
+    // heading included, tells main.qml that they are still here; dropped on a
+    // device, they go to it. The row under them lights up as under the pointer.
+    background: DropArea {
+        z: 1
+
+        function rowAt(x, y) {
+            const p = mapToItem(peerList, x, y);
+            if (!peerList.contains(p))
+                return null;
+            return peerList.itemAt(p.x + peerList.contentX, p.y + peerList.contentY);
+        }
+
+        onContainsDragChanged: {
+            root.dragOverPopup = containsDrag;
+            if (!containsDrag)
+                peerList.currentIndex = -1;
+        }
+        onPositionChanged: drag => {
+            const row = rowAt(drag.x, drag.y);
+            peerList.currentIndex = row ? row.index : -1;
+        }
+        onDropped: drop => {
+            const row = rowAt(drop.x, drop.y);
+            if (row && drop.hasUrls)
+                root.sendFiles(row.modelData.mac, drop.urls);
+        }
+    }
 
     header: PlasmaExtras.PlasmoidHeading {
         contentItem: RowLayout {
@@ -60,12 +85,26 @@ PlasmaExtras.Representation {
             }
 
             PlasmaComponents.ComboBox {
-                model: full.durations
+                id: durationBox
+
+                function sync() {
+                    currentIndex = Math.max(0, indexOfValue(root.duration));
+                }
+
+                model: durations.list
                 textRole: "label"
                 valueRole: "value"
                 enabled: root.installed && root.pending === ""
-                Component.onCompleted: currentIndex = Math.max(0, indexOfValue(root.duration))
+                Component.onCompleted: sync()
                 onActivated: root.setDuration(currentValue)
+
+                // The settings page changes it too.
+                Connections {
+                    target: root
+                    function onDurationChanged() {
+                        durationBox.sync();
+                    }
+                }
 
                 PlasmaComponents.ToolTip {
                     text: i18n("How long to stay visible")
@@ -83,6 +122,22 @@ PlasmaExtras.Representation {
 
                 PlasmaComponents.ToolTip {
                     text: folderButton.text
+                }
+            }
+
+            PlasmaComponents.ToolButton {
+                id: pinButton
+
+                text: i18n("Keep Open")
+                icon.name: "window-pin"
+                display: PlasmaComponents.AbstractButton.IconOnly
+                visible: !root.inTray
+                checkable: true
+                checked: root.pinned
+                onToggled: root.setPinned(checked)
+
+                PlasmaComponents.ToolTip {
+                    text: pinButton.text
                 }
             }
         }
@@ -227,21 +282,6 @@ PlasmaExtras.Representation {
                         text: i18n("Send…")
                         icon.name: "document-send"
                         onTriggered: root.pickAndSend(row.modelData.mac)
-                    }
-
-                    // Files dragged from the file manager onto a device go to
-                    // it. The row lights up as it does under the pointer.
-                    DropArea {
-                        anchors.fill: parent
-                        onEntered: peerList.currentIndex = row.index
-                        onExited: {
-                            if (peerList.currentIndex === row.index)
-                                peerList.currentIndex = -1;
-                        }
-                        onDropped: dropEvent => {
-                            if (dropEvent.hasUrls)
-                                root.sendFiles(row.modelData.mac, dropEvent.urls);
-                        }
                     }
                 }
 
