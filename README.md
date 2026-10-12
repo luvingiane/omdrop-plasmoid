@@ -14,7 +14,8 @@ command, so if `omdrop` works in a terminal, it works here.
 - **Switch** for visibility and a **duration** for the window: 10 minutes,
   30 minutes, 1 hour, one file only, or until you turn it off. Changing the
   duration while a window is open reschedules it.
-- **Status** with a countdown. An error from omdrop is shown in red below it.
+- **Status** with a countdown. An error from omdrop appears as a banner under
+  the heading.
 - **Nearby devices**, by name. **Send…** opens a file chooser for that device,
   or drag files from Dolphin onto its row. The result of a send arrives as a
   notification.
@@ -48,8 +49,10 @@ arrive, but with no notification. Stand-ins are included: see
 ./install.sh
 ```
 
-The script installs the package the first time and updates it afterwards. Then
-right-click the panel, choose **Add or Manage Widgets…** and search for
+The script installs the package the first time and updates it afterwards. It
+also copies the icon to `~/.local/share/icons/hicolor/scalable/apps/` as
+`omdrop-plasmoid.svg`, where the widget list and the tray's settings look for
+it. Then right-click the panel, choose **Add or Manage Widgets…** and search for
 **Omdrop**. It also lives in the system tray, where it sits among the hidden
 icons while AirDrop is off unless you set it to "Always shown".
 
@@ -110,6 +113,7 @@ po/build.sh
 | `package/contents/ui/FullRepresentation.qml` | the popup |
 | `package/contents/config/main.xml` | the two saved settings: duration and send wait |
 | `package/contents/icons/omdrop.svg` | the icon |
+| `package/contents/icons/omdrop-off.svg` | the icon struck through, for the popup while AirDrop is off |
 | `po/` | translation template, catalogues and their build script |
 
 Status comes from `omdrop status --json`, every 2 seconds with the popup open

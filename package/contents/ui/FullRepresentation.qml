@@ -1,7 +1,10 @@
-// The popup: the switch and the window's length in the heading, then what
-// omdrop is doing, then the Apple devices nearby and a way to send to each.
+// The popup, laid out as Plasma's own applets are: the switch and the window's
+// length in the heading, an error under it, then what omdrop is doing and the
+// Apple devices nearby, each with a way to send to it.
 import QtQuick
+import QtQuick.Controls as QQC2
 import QtQuick.Layouts
+import org.kde.ksvg as KSvg
 import org.kde.plasma.components as PlasmaComponents
 import org.kde.plasma.extras as PlasmaExtras
 import org.kde.kirigami as Kirigami
@@ -14,6 +17,11 @@ PlasmaExtras.Representation {
     Layout.preferredWidth: Kirigami.Units.gridUnit * 22
     Layout.preferredHeight: Kirigami.Units.gridUnit * 22
     collapseMarginsHint: true
+
+    // The list's margin, as in Plasma's own lists, and where a row's content
+    // starts inside it: text outside the list lines up with the rows.
+    readonly property real listMargin: Kirigami.Units.smallSpacing * 2
+    readonly property real rowInset: Kirigami.Units.smallSpacing
 
     readonly property var durations: [
         { label: i18n("10 minutes"), value: "10m" },
@@ -28,6 +36,8 @@ PlasmaExtras.Representation {
             spacing: Kirigami.Units.smallSpacing
 
             PlasmaComponents.Switch {
+                // The margin Plasma's applets leave before their switches.
+                Layout.leftMargin: Kirigami.Units.smallSpacing
                 text: "AirDrop"
                 checked: root.receiving
                 enabled: root.installed && root.pending === ""
@@ -63,12 +73,16 @@ PlasmaExtras.Representation {
             }
 
             PlasmaComponents.ToolButton {
+                id: folderButton
+
+                text: i18n("Open the received files folder")
                 icon.name: "folder-download"
+                display: PlasmaComponents.AbstractButton.IconOnly
                 enabled: root.downloadDir !== ""
                 onClicked: root.openFolder()
 
                 PlasmaComponents.ToolTip {
-                    text: i18n("Open the received files folder")
+                    text: folderButton.text
                 }
             }
         }
@@ -77,182 +91,192 @@ PlasmaExtras.Representation {
     contentItem: ColumnLayout {
         spacing: 0
 
-        PlasmaComponents.Label {
+        Kirigami.InlineMessage {
             Layout.fillWidth: true
-            Layout.margins: Kirigami.Units.largeSpacing
-            Layout.bottomMargin: Kirigami.Units.smallSpacing
-            text: root.statusText
-            wrapMode: Text.WordWrap
+            type: Kirigami.MessageType.Error
+            position: Kirigami.InlineMessage.Position.Header
+            text: root.lastError
+            visible: root.lastError !== ""
+            showCloseButton: true
+            // Its close button hides it by hand, which drops the binding.
+            onVisibleChanged: {
+                if (!visible) {
+                    root.lastError = "";
+                    visible = Qt.binding(() => root.lastError !== "");
+                }
+            }
         }
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.leftMargin: Kirigami.Units.largeSpacing
-            Layout.rightMargin: Kirigami.Units.smallSpacing
-            visible: root.lastError !== ""
-            spacing: Kirigami.Units.smallSpacing
-
-            Kirigami.Icon {
-                Layout.preferredWidth: Kirigami.Units.iconSizes.small
-                Layout.preferredHeight: Kirigami.Units.iconSizes.small
-                Layout.alignment: Qt.AlignTop
-                source: "dialog-error"
-            }
+            Layout.topMargin: full.listMargin
+            Layout.leftMargin: full.listMargin + full.rowInset
+            Layout.rightMargin: full.listMargin + full.rowInset
+            visible: root.installed && (root.receiving || root.pending !== "")
+            spacing: Kirigami.Units.largeSpacing
 
             PlasmaComponents.Label {
                 Layout.fillWidth: true
-                text: root.lastError
-                color: Kirigami.Theme.negativeTextColor
+                text: root.visibilityText
                 wrapMode: Text.WordWrap
-                font: Kirigami.Theme.smallFont
             }
 
-            PlasmaComponents.ToolButton {
+            PlasmaComponents.Label {
                 Layout.alignment: Qt.AlignTop
-                icon.name: "dialog-close"
-                onClicked: root.lastError = ""
-            }
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.leftMargin: Kirigami.Units.largeSpacing
-            Layout.rightMargin: Kirigami.Units.smallSpacing
-            Layout.topMargin: Kirigami.Units.smallSpacing
-            visible: root.receiving
-
-            Kirigami.Heading {
-                Layout.fillWidth: true
-                level: 5
-                text: i18n("Nearby devices")
-                opacity: 0.7
-            }
-
-            PlasmaComponents.BusyIndicator {
-                Layout.preferredWidth: Kirigami.Units.iconSizes.small
-                Layout.preferredHeight: Kirigami.Units.iconSizes.small
-                running: root.naming
-                visible: running
-            }
-
-            PlasmaComponents.ToolButton {
-                text: i18n("Refresh names")
-                icon.name: "view-refresh"
-                enabled: root.peers.length > 0 && !root.naming
-
-                onClicked: root.lookUpNames()
-
-                PlasmaComponents.ToolTip {
-                    text: i18n("Connects to each device and announces this computer over Bluetooth")
-                }
+                text: root.windowText
+                visible: text !== ""
+                opacity: 0.75
+                // Digits of one width, so the countdown does not shift as it runs.
+                font.features: { "tnum": 1 }
             }
         }
 
         PlasmaComponents.ScrollView {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            contentWidth: availableWidth - contentItem.leftMargin - contentItem.rightMargin
+            PlasmaComponents.ScrollBar.horizontal.policy: PlasmaComponents.ScrollBar.AlwaysOff
 
-            ListView {
+            contentItem: ListView {
                 id: peerList
 
                 clip: true
                 model: root.receiving ? root.peers : []
+                currentIndex: -1
                 topMargin: Kirigami.Units.smallSpacing
-                bottomMargin: Kirigami.Units.smallSpacing
+                bottomMargin: full.listMargin
+                leftMargin: full.listMargin
+                rightMargin: full.listMargin
+                spacing: Kirigami.Units.smallSpacing
 
-                delegate: Item {
+                highlight: PlasmaExtras.Highlight {}
+                highlightMoveDuration: Kirigami.Units.shortDuration
+                highlightResizeDuration: Kirigami.Units.shortDuration
+
+                header: count > 0 ? peersHeader : null
+
+                // PlasmaExtras.ListSectionHeader, with room for the refresh
+                // button at the end of its line.
+                Component {
+                    id: peersHeader
+
+                    RowLayout {
+                        width: peerList.width - peerList.leftMargin - peerList.rightMargin
+                        spacing: Kirigami.Units.largeSpacing
+
+                        Kirigami.Heading {
+                            Layout.leftMargin: full.rowInset
+                            level: 5
+                            type: Kirigami.Heading.Primary
+                            font.weight: Font.Bold
+                            opacity: 0.75
+                            text: i18n("Nearby devices")
+                            elide: Text.ElideRight
+                        }
+
+                        KSvg.SvgItem {
+                            Layout.fillWidth: true
+                            imagePath: "widgets/line"
+                            elementId: "horizontal-line"
+                        }
+
+                        PlasmaComponents.BusyIndicator {
+                            Layout.preferredWidth: refreshButton.implicitHeight
+                            Layout.preferredHeight: refreshButton.implicitHeight
+                            Layout.rightMargin: full.rowInset
+                            running: root.naming
+                            visible: running
+                        }
+
+                        PlasmaComponents.ToolButton {
+                            id: refreshButton
+
+                            Layout.rightMargin: full.rowInset
+                            text: i18n("Refresh names")
+                            icon.name: "view-refresh"
+                            display: PlasmaComponents.AbstractButton.IconOnly
+                            visible: !root.naming
+                            onClicked: root.lookUpNames()
+
+                            PlasmaComponents.ToolTip {
+                                text: refreshButton.text + "\n"
+                                      + i18n("Connects to each device and announces this computer over Bluetooth")
+                            }
+                        }
+                    }
+                }
+
+                delegate: PlasmaExtras.ExpandableListItem {
                     id: row
 
+                    required index
                     required property var modelData
                     readonly property bool busy: root.sending[modelData.mac] === true
 
-                    width: peerList.width
-                    height: rowLayout.implicitHeight + Kirigami.Units.smallSpacing * 2
+                    width: peerList.width - peerList.leftMargin - peerList.rightMargin
 
-                    // Files dragged from the file manager onto a device go to it.
+                    icon: {
+                        if (/mac/i.test(modelData.name))
+                            return "computer-laptop";
+                        return /ipad/i.test(modelData.name) ? "tablet" : "phone-apple-iphone";
+                    }
+                    title: modelData.name || i18n("Apple device")
+                    subtitle: busy ? i18n("Sending: accept it on the device") : modelData.mac
+                    isBusy: busy
+                    defaultActionButtonAction: QQC2.Action {
+                        text: i18n("Send…")
+                        icon.name: "document-send"
+                        onTriggered: root.pickAndSend(row.modelData.mac)
+                    }
+
+                    // Files dragged from the file manager onto a device go to
+                    // it. The row lights up as it does under the pointer.
                     DropArea {
-                        id: drop
                         anchors.fill: parent
+                        onEntered: peerList.currentIndex = row.index
+                        onExited: {
+                            if (peerList.currentIndex === row.index)
+                                peerList.currentIndex = -1;
+                        }
                         onDropped: dropEvent => {
                             if (dropEvent.hasUrls)
                                 root.sendFiles(row.modelData.mac, dropEvent.urls);
                         }
                     }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        anchors.leftMargin: Kirigami.Units.smallSpacing
-                        anchors.rightMargin: Kirigami.Units.smallSpacing
-                        radius: Kirigami.Units.cornerRadius
-                        color: Kirigami.Theme.highlightColor
-                        opacity: drop.containsDrag ? 0.3 : 0
-                    }
-
-                    RowLayout {
-                        id: rowLayout
-
-                        anchors.fill: parent
-                        anchors.leftMargin: Kirigami.Units.largeSpacing
-                        anchors.rightMargin: Kirigami.Units.largeSpacing
-                        spacing: Kirigami.Units.largeSpacing
-
-                        Kirigami.Icon {
-                            Layout.preferredWidth: Kirigami.Units.iconSizes.medium
-                            Layout.preferredHeight: Kirigami.Units.iconSizes.medium
-                            source: /mac/i.test(row.modelData.name) ? "computer-laptop" : "smartphone"
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 0
-
-                            PlasmaComponents.Label {
-                                Layout.fillWidth: true
-                                text: row.modelData.name || i18n("Apple device")
-                                elide: Text.ElideRight
-                            }
-
-                            PlasmaComponents.Label {
-                                Layout.fillWidth: true
-                                text: row.busy ? i18n("Sending: accept it on the device") : row.modelData.mac
-                                font: Kirigami.Theme.smallFont
-                                opacity: 0.7
-                                elide: Text.ElideRight
-                            }
-                        }
-
-                        PlasmaComponents.BusyIndicator {
-                            Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
-                            Layout.preferredHeight: Kirigami.Units.iconSizes.smallMedium
-                            running: row.busy
-                            visible: running
-                        }
-
-                        PlasmaComponents.Button {
-                            text: i18n("Send…")
-                            icon.name: "document-send"
-                            enabled: !row.busy
-                            onClicked: root.pickAndSend(row.modelData.mac)
-                        }
-                    }
                 }
 
-                PlasmaExtras.PlaceholderMessage {
+                ColumnLayout {
                     anchors.centerIn: parent
                     width: parent.width - Kirigami.Units.gridUnit * 4
                     visible: peerList.count === 0
-                    iconName: root.receiving ? "smartphone" : "network-disconnect"
-                    text: {
-                        if (!root.installed)
-                            return i18n("omdrop is not installed");
-                        return root.receiving ? i18n("No Apple devices in sight") : i18n("AirDrop is off");
+                    spacing: Kirigami.Units.gridUnit
+
+                    // PlaceholderMessage takes its icon by name, from the icon
+                    // theme. Ours is a file, drawn here the way it draws its own.
+                    Kirigami.Icon {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.preferredWidth: Math.round(Kirigami.Units.iconSizes.huge * 1.5)
+                        Layout.preferredHeight: Math.round(Kirigami.Units.iconSizes.huge * 1.5)
+                        source: Qt.resolvedUrl(root.receiving ? "../icons/omdrop.svg" : "../icons/omdrop-off.svg")
+                        isMask: true
+                        color: Kirigami.Theme.textColor
+                        opacity: 0.75
                     }
-                    explanation: {
-                        if (!root.installed)
-                            return i18n("The omdrop command is needed in ~/.local/bin or on the PATH.");
-                        if (root.receiving)
-                            return i18n("On the iPhone, set AirDrop to “Everyone for 10 Minutes” and open the share sheet.");
-                        return i18n("Turn it on to receive files and see nearby devices.");
+
+                    PlasmaExtras.PlaceholderMessage {
+                        Layout.fillWidth: true
+                        text: {
+                            if (!root.installed)
+                                return i18n("omdrop is not installed");
+                            return root.receiving ? i18n("No Apple devices in sight") : i18n("AirDrop is off");
+                        }
+                        explanation: {
+                            if (!root.installed)
+                                return i18n("The omdrop command is needed in ~/.local/bin or on the PATH.");
+                            if (root.receiving)
+                                return i18n("On the iPhone, set AirDrop to “Everyone for 10 Minutes” and open the share sheet.");
+                            return i18n("Turn it on to receive files and see nearby devices.");
+                        }
                     }
                 }
             }

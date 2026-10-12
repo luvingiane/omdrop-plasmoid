@@ -44,7 +44,8 @@ PlasmoidItem {
     readonly property string path: 'PATH="$HOME/.local/bin:$PATH"'
     readonly property string omdrop: path + " omdrop"
 
-    readonly property string statusText: {
+    // Who can see this computer, or what omdrop is busy doing.
+    readonly property string visibilityText: {
         if (!installed)
             return i18n("The omdrop command is not installed");
         if (pending === "on")
@@ -53,17 +54,23 @@ PlasmoidItem {
             return i18n("Turning off…");
         if (!receiving)
             return i18n("Off");
-        let text = visibility === "contacts"
+        return visibility === "contacts"
             ? i18n("Visible to contacts as “%1”", deviceName)
             : i18n("Visible to everyone as “%1”", deviceName);
-        if (mode === "once")
-            text += " · " + i18n("until the first file");
-        else if (mode === "forever")
-            text += " · " + i18n("until you turn it off");
-        else if (remaining >= 0)
-            text += " · " + formatTime(remaining);
-        return text;
     }
+
+    // How long it stays visible; empty when there is nothing to say.
+    readonly property string windowText: {
+        if (!installed || pending !== "" || !receiving)
+            return "";
+        if (mode === "once")
+            return i18n("until the first file");
+        if (mode === "forever")
+            return i18n("until you turn it off");
+        return remaining >= 0 ? formatTime(remaining) : "";
+    }
+
+    readonly property string statusText: windowText === "" ? visibilityText : visibilityText + " · " + windowText
 
     function formatTime(seconds) {
         const m = Math.floor(seconds / 60), s = seconds % 60;
@@ -155,6 +162,15 @@ PlasmoidItem {
         }));
     }
 
+    // The popup rebuilds its list whenever `peers` changes, so it changes only
+    // when a device or a name does: the signal strength moves on every poll.
+    function setPeers(list) {
+        const key = l => JSON.stringify(l.map(p => [p.mac, p.name]));
+        const next = withNames(list);
+        if (key(next) !== key(peers))
+            peers = next;
+    }
+
     function refreshPeers() {
         if (peersBusy || naming || !receiving)
             return;
@@ -162,7 +178,7 @@ PlasmoidItem {
         exec.run(omdrop + " peers --json", (code, out) => {
             peersBusy = false;
             try {
-                peers = withNames(JSON.parse(out));
+                setPeers(JSON.parse(out));
             } catch (e) {
                 peers = [];
             }
@@ -194,7 +210,7 @@ PlasmoidItem {
                     names[p.mac] = p.name;
             }
             peerNames = names;
-            peers = withNames(list);
+            setPeers(list);
         });
     }
 
@@ -247,7 +263,7 @@ PlasmoidItem {
             exec.run("xdg-open " + quote(downloadDir), null);
     }
 
-    Plasmoid.icon: "document-share"
+    Plasmoid.icon: "omdrop-plasmoid"
     Plasmoid.status: receiving || pending !== "" ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.PassiveStatus
     toolTipMainText: "AirDrop"
     toolTipSubText: statusText

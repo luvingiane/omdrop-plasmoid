@@ -4,7 +4,7 @@
         "Category": "Utilities",
         "Description": "AirDrop with nearby Apple devices, through omdrop",
         "Description[it]": "AirDrop con i dispositivi Apple vicini, tramite omdrop",
-        "Icon": "document-share",
+        "Icon": "omdrop-plasmoid",
         "Id": "local.omdrop",
         "License": "MIT",
         "Name": "Omdrop (AirDrop)",
