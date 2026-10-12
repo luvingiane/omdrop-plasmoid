@@ -4,6 +4,10 @@ A KDE Plasma 6 widget for [omdrop](https://github.com/brentkearney/omdrop-plugin
 AirDrop with nearby Apple devices. omdrop ships as a bar widget for Omarchy;
 this is the equivalent for Plasma.
 
+<img width="448" height="467" alt="Screenshot_20261012_234236" src="https://github.com/user-attachments/assets/09bbbc6e-4621-4328-8bc8-499a3d4a0053" />
+<img width="448" height="467" alt="Screenshot_20261012_234336" src="https://github.com/user-attachments/assets/9ecf0506-6bce-43b1-850a-29f2be06f869" />
+
+
 It holds no AirDrop logic of its own. Every action is a call to the `omdrop`
 command, so if `omdrop` works in a terminal, it works here.
 
