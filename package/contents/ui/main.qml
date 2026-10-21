@@ -304,28 +304,85 @@ PlasmoidItem {
     ]
 
     // One shell command per source. The executable engine keys a source by its
-    // command line, so a numbered comment keeps two runs of the same command
-    // apart.
+    // command line; a comment with the applet id keeps the runs of two copies
+    // of the applet apart.
+    //
+    // A command keeps the same source name from one run to the next. With a
+    // new name per run (a counter, say) the engine and the DataSource keep
+    // something for every name they have ever seen, at a cost that grows with
+    // them, and after hours plasmashell's main thread spends its time there.
+    //
+    // A source still known to the engine answers with its old result without
+    // running again, so a command is started again only after the engine has
+    // removed its source (sourceRemoved; the `sources` property is not updated
+    // then, so it cannot tell). A request that comes earlier waits in `queued`.
     Plasma5Support.DataSource {
         id: exec
         engine: "executable"
         connectedSources: []
 
-        property var callbacks: ({})
-        property int serial: 0
+        property var running: ({})       // source -> callback of the run in progress
+        property var leaving: ({})       // source -> when it was disconnected, in ms
+        property var queued: ({})        // source -> callbacks waiting for their turn
 
         function run(command, callback) {
-            const source = command + " #" + (++serial);
-            callbacks[source] = callback;
+            const source = command + " # " + Plasmoid.id;
+            if (!queued[source])
+                queued[source] = [];
+            queued[source].push(callback);
+            runQueued(source);
+        }
+
+        // Starts the next waiting run of a source, once the engine has let
+        // it go.
+        function runQueued(source) {
+            const waiting = queued[source];
+            if (!waiting || source in running || source in leaving)
+                return;
+            const callback = waiting.shift();
+            if (waiting.length === 0)
+                delete queued[source];
+            running[source] = callback || null;
             connectSource(source);
         }
 
         onNewData: (source, data) => {
-            const callback = callbacks[source];
-            delete callbacks[source];
+            // An update without an exit code comes before the process has
+            // finished: wait for the real result.
+            if (data["exit code"] === undefined || !(source in running))
+                return;
+            const callback = running[source];
+            delete running[source];
+            leaving[source] = Date.now();
             disconnectSource(source);
             if (callback)
                 callback(data["exit code"], data["stdout"], data["stderr"]);
+        }
+
+        // The next run starts once the engine has finished removing the
+        // source: connecting it again from inside the removal leaves the new
+        // run without a removal of its own.
+        onSourceRemoved: source => {
+            delete leaving[source];
+            Qt.callLater(() => runQueued(source));
+        }
+    }
+
+    // The engine removes a source a few milliseconds after it is let go; one
+    // that has not gone after a few seconds is assumed gone, so that a missed
+    // removal cannot hold its command back for good.
+    Timer {
+        interval: 5000
+        running: true
+        repeat: true
+        onTriggered: {
+            const now = Date.now();
+            for (const source of Object.keys(exec.leaving)) {
+                if (now - exec.leaving[source] > 5000) {
+                    delete exec.leaving[source];
+                    exec.runQueued(source);
+                }
+            }
         }
     }
 
