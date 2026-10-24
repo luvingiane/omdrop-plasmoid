@@ -4,6 +4,7 @@
         "Category": "Utilities",
         "Description": "AirDrop with nearby Apple devices, through omdrop",
         "Description[it]": "AirDrop con i dispositivi Apple vicini, tramite omdrop",
+        "EnabledByDefault": true,
         "Icon": "omdrop-plasmoid",
         "Id": "io.github.luvingiane.omdrop",
         "License": "MIT",
