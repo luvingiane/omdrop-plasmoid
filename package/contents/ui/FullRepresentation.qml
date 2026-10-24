@@ -47,8 +47,8 @@ PlasmaExtras.Representation {
         }
         onDropped: drop => {
             const row = rowAt(drop.x, drop.y);
-            if (row && drop.hasUrls)
-                root.sendFiles(row.modelData.mac, drop.urls);
+            if (row)
+                root.send(row.modelData.mac, root.dropUrls(drop));
         }
     }
 
@@ -251,6 +251,50 @@ PlasmaExtras.Representation {
                         text: i18n("Send…")
                         icon.name: "document-send"
                         onTriggered: root.pickAndSend(row.modelData.mac)
+                    }
+
+                    // Opened, the row takes a web link to send.
+                    customExpandedViewContent: Component {
+                        RowLayout {
+                            spacing: Kirigami.Units.smallSpacing
+
+                            PlasmaComponents.TextField {
+                                id: linkField
+
+                                Layout.fillWidth: true
+                                placeholderText: i18n("Link to send")
+                                inputMethodHints: Qt.ImhUrlCharactersOnly | Qt.ImhNoAutoUppercase
+                                text: root.linkDraft
+                                onTextEdited: root.linkDraft = text
+                                onAccepted: sendLinkButton.clicked()
+                                Component.onCompleted: forceActiveFocus()
+                            }
+
+                            PlasmaComponents.Button {
+                                id: sendLinkButton
+
+                                text: i18n("Send Link")
+                                icon.name: "document-send"
+                                enabled: !row.busy && root.webLink(linkField.text) !== ""
+                                onClicked: {
+                                    if (!enabled)
+                                        return;
+                                    root.sendLink(row.modelData.mac, linkField.text);
+                                    root.linkDraft = "";
+                                    row.collapse();
+                                }
+                            }
+                        }
+                    }
+
+                    onItemExpanded: root.linkPeer = modelData.mac
+                    onItemCollapsed: {
+                        if (root.linkPeer === modelData.mac)
+                            root.linkPeer = "";
+                    }
+                    Component.onCompleted: {
+                        if (modelData.mac === root.linkPeer)
+                            expand();
                     }
                 }
 

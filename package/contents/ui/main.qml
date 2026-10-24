@@ -33,6 +33,12 @@ PlasmoidItem {
     property var sending: ({})           // mac -> true while a send runs
     property string sendTarget: ""
 
+    // The link being typed, and the device whose row is open on it. Kept
+    // here because the popup rebuilds its rows whenever a device or a name
+    // changes.
+    property string linkDraft: ""
+    property string linkPeer: ""
+
     property bool statusBusy: false
     property bool peersBusy: false
 
@@ -234,25 +240,59 @@ PlasmoidItem {
         fileDialog.open();
     }
 
-    function sendFiles(mac, urls) {
-        const paths = [];
+    // An http or https link, as omdrop takes one, or "" for anything else.
+    // An address typed without its scheme gets https://.
+    function webLink(text) {
+        let link = String(text).trim();
+        if (link !== "" && !/^[a-z][a-z0-9+.-]*:(?!\d)/i.test(link))
+            link = "https://" + link;
+        return /^https?:\/\/[^\s\/][^\s]*$/i.test(link) ? link : "";
+    }
+
+    // What a drop carries: the URLs of files or links, or a link dragged as
+    // plain text.
+    function dropUrls(drop) {
+        if (drop.hasUrls)
+            return drop.urls;
+        return drop.hasText ? [drop.text.trim()] : [];
+    }
+
+    function sendLink(mac, text) {
+        const link = webLink(text);
+        if (link !== "")
+            send(mac, [link]);
+    }
+
+    // file:// URLs go as the files they name, http and https ones as links.
+    // A send carries one kind or the other; given both, omdrop says so.
+    function send(mac, urls) {
+        const items = [];
+        let files = 0;
         for (const url of urls) {
             const text = String(url);
-            if (text.startsWith("file://"))
-                paths.push(decodeURIComponent(text.substring(7)));
+            if (text.startsWith("file://")) {
+                items.push(decodeURIComponent(text.substring(7)));
+                files++;
+            } else if (/^https?:\/\//i.test(text)) {
+                items.push(text);
+            }
         }
-        if (paths.length === 0 || sending[mac])
+        if (items.length === 0 || sending[mac])
             return;
         const who = peerNames[mac] || mac;
         markSending(mac, true);
         lastError = "";
         exec.run(omdrop + " send --to " + quote(mac) + " --wait " + sendWait
-                 + " -- " + paths.map(quote).join(" "), (code, out, err) => {
+                 + " -- " + items.map(quote).join(" "), (code, out, err) => {
             markSending(mac, false);
             if (code === 0) {
-                notify("document-send", i18n("Sent to %1", who),
-                       paths.length === 1 ? paths[0].replace(/^.*\//, "")
-                                          : i18np("%1 file", "%1 files", paths.length));
+                let what;
+                if (items.length === 1)
+                    what = files ? items[0].replace(/^.*\//, "") : items[0];
+                else
+                    what = files ? i18np("%1 file", "%1 files", files)
+                                 : i18np("%1 link", "%1 links", items.length);
+                notify("document-send", i18n("Sent to %1", who), what);
             } else {
                 lastError = lastLine(err) || lastLine(out) || i18n("omdrop send exited with code %1", code);
                 notify("dialog-error", i18n("Could not send to %1", who), lastError);
@@ -423,7 +463,7 @@ PlasmoidItem {
         id: fileDialog
         title: i18n("Choose the files to send")
         fileMode: FileDialog.OpenFiles
-        onAccepted: root.sendFiles(root.sendTarget, selectedFiles)
+        onAccepted: root.send(root.sendTarget, selectedFiles)
     }
 
     compactRepresentation: MouseArea {
@@ -464,8 +504,8 @@ PlasmoidItem {
                 }
             }
             onDropped: drop => {
-                if (drop.hasUrls && root.receiving && root.peers.length === 1)
-                    root.sendFiles(root.peers[0].mac, drop.urls);
+                if (root.receiving && root.peers.length === 1)
+                    root.send(root.peers[0].mac, root.dropUrls(drop));
             }
 
             Timer {

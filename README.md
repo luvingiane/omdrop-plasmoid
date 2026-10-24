@@ -27,6 +27,11 @@ command, so if `omdrop` works in a terminal, it works here.
   again once the files are dropped or taken away. With a single device in
   sight, dropping them on the icon itself sends them to it. The result of a
   send arrives as a notification.
+- **Links**, to open in the device's browser. Click a device's row to open
+  it, then type or paste an http or https address (`kde.org` will do) and
+  press **Send Link** or Enter. A link dragged from the browser can be
+  dropped on a row or the icon the same way as files. Links and files go in
+  separate sends: AirDrop carries one kind or the other.
 - **Received files folder**, from the button at the top right or the context
   menu.
 - **Pin**, at the top right, to keep the popup open while you work in another
@@ -47,7 +52,8 @@ iPhone with its screen off stays "Apple device".
   version that has `status --json` and `peers --json`.
 - An omdrop radio backend that suits your Wi-Fi card. This widget was written
   and tested with [omdrop-owl](https://github.com/t4t5/omdrop-owl) on an Intel
-  AX200.
+  AX200. Sending links needs a backend whose sender takes links: for
+  omdrop-owl, 0.4.1 or newer.
 - `notify-send` (the `libnotify` package), for the send notifications.
 
 On a desktop other than Omarchy, omdrop calls a few `omarchy-*` commands for
